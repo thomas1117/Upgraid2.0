@@ -80,14 +80,14 @@
 
 	var _store2 = _interopRequireDefault(_store);
 
-	var _main = __webpack_require__(296);
+	var _main = __webpack_require__(297);
 
 	var _main2 = _interopRequireDefault(_main);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	__webpack_require__(297);
-	__webpack_require__(301);
+	__webpack_require__(298);
+	__webpack_require__(302);
 
 
 	_reactDom2.default.render(_react2.default.createElement(
@@ -31014,7 +31014,7 @@
 
 	var _searchbar2 = _interopRequireDefault(_searchbar);
 
-	var _searchbox = __webpack_require__(303);
+	var _searchbox = __webpack_require__(296);
 
 	var _searchbox2 = _interopRequireDefault(_searchbox);
 
@@ -31043,10 +31043,16 @@
 	var Nav = function (_React$Component) {
 		_inherits(Nav, _React$Component);
 
-		function Nav() {
+		function Nav(props) {
 			_classCallCheck(this, Nav);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(Nav).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Nav).call(this, props));
+
+			_this.state = {
+				open: false,
+				length: 0
+			};
+			return _this;
 		}
 
 		_createClass(Nav, [{
@@ -31055,8 +31061,36 @@
 				(0, _profile.grabUsers)();
 			}
 		}, {
+			key: 'searchFriends',
+			value: function searchFriends(e) {
+				var userInput = e.target.value.toLowerCase();
+				this.setState({ length: e.target.value.length });
+
+				var filtered = this.props.userList.filter(function (obj) {
+					if (obj.username.slice(0, userInput.length).toLowerCase() === userInput) {
+						return true;
+					}
+				});
+
+				(0, _profile.filterUsers)(filtered);
+			}
+		}, {
+			key: 'clicked',
+			value: function clicked() {
+
+				this.setState({
+					open: true
+				});
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+				var _this2 = this;
+
+				var _state = this.state;
+				var open = _state.open;
+				var length = _state.length;
+
 
 				return _react2.default.createElement(
 					'nav',
@@ -31079,14 +31113,18 @@
 							_react2.default.createElement(
 								'div',
 								{ className: 'col-sm-2' },
-								_react2.default.createElement(_searchbar2.default, { userList: this.props.userList })
+								_react2.default.createElement('input', { onFocus: function onFocus(e) {
+										return _this2.clicked(e);
+									}, onChange: function onChange(e) {
+										return _this2.searchFriends(e);
+									} })
 							)
 						)
 					),
 					_react2.default.createElement(
 						'div',
 						{ className: 'user-list-modal' },
-						_react2.default.createElement(_searchbox2.default, { filteredUsers: this.props.filteredUsers })
+						open && length ? _react2.default.createElement(_searchbox2.default, { filteredUsers: this.props.filteredUsers }) : null
 					)
 				);
 			}
@@ -31114,6 +31152,39 @@
 
 /***/ },
 /* 295 */
+/***/ function(module, exports) {
+
+	// import React from 'react';
+	// import {filterUsers} from '../../redux/actions/profile.js';
+
+	// class SearchBar extends React.Component {
+	// 	searchFriends(e) {
+	// 		var userInput = e.target.value.toLowerCase();
+
+	// 		var filtered = this.props.userList.filter(function(obj){
+	// 			if(obj.username.slice(0,userInput.length).toLowerCase()===userInput) {
+	// 				return true;
+	// 			}
+	// 		});
+
+	// 		filterUsers(filtered)
+
+	// 	}
+	// 	render() {
+
+
+	// 			return(<div>
+	// 				<input onChange={(e) => this.searchFriends(e)}/>
+	// 				</div>)
+
+	// 	}
+	// };
+
+	// export default SearchBar;
+	"use strict";
+
+/***/ },
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31128,7 +31199,23 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _searchbar = __webpack_require__(295);
+
+	var _searchbar2 = _interopRequireDefault(_searchbar);
+
+	var _store = __webpack_require__(264);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	var _redux = __webpack_require__(179);
+
 	var _profile = __webpack_require__(290);
+
+	var actionCreators = _interopRequireWildcard(_profile);
+
+	var _reactRedux = __webpack_require__(172);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31138,52 +31225,49 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SearchBar = function (_React$Component) {
-		_inherits(SearchBar, _React$Component);
+	var SearchBox = function (_React$Component) {
+		_inherits(SearchBox, _React$Component);
 
-		function SearchBar() {
-			_classCallCheck(this, SearchBar);
+		function SearchBox() {
+			_classCallCheck(this, SearchBox);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchBar).apply(this, arguments));
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchBox).apply(this, arguments));
 		}
 
-		_createClass(SearchBar, [{
-			key: 'searchFriends',
-			value: function searchFriends(e) {
-				var userInput = e.target.value.toLowerCase();
-
-				var filtered = this.props.userList.filter(function (obj) {
-					if (obj.username.slice(0, userInput.length).toLowerCase() === userInput) {
-						return true;
-					}
-				});
-
-				(0, _profile.filterUsers)(filtered);
-			}
+		_createClass(SearchBox, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
 		}, {
 			key: 'render',
 			value: function render() {
-				var _this2 = this;
 
 				return _react2.default.createElement(
 					'div',
 					null,
-					_react2.default.createElement('input', { onChange: function onChange(e) {
-							return _this2.searchFriends(e);
-						} })
+					_react2.default.createElement(
+						'ul',
+						null,
+						this.props.filteredUsers.map(function (obj) {
+							return _react2.default.createElement(
+								'li',
+								{ key: obj.id },
+								obj.username
+							);
+						})
+					)
 				);
 			}
 		}]);
 
-		return SearchBar;
+		return SearchBox;
 	}(_react2.default.Component);
 
 	;
 
-	exports.default = SearchBar;
+	exports.default = SearchBox;
 
 /***/ },
-/* 296 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31211,16 +31295,16 @@
 	});
 
 /***/ },
-/* 297 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(298);
+	var content = __webpack_require__(299);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(300)(content, {});
+	var update = __webpack_require__(301)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31237,10 +31321,10 @@
 	}
 
 /***/ },
-/* 298 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(299)();
+	exports = module.exports = __webpack_require__(300)();
 	// imports
 
 
@@ -31251,7 +31335,7 @@
 
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports) {
 
 	/*
@@ -31307,7 +31391,7 @@
 
 
 /***/ },
-/* 300 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -31559,16 +31643,16 @@
 
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(302);
+	var content = __webpack_require__(303);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(300)(content, {});
+	var update = __webpack_require__(301)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31585,10 +31669,10 @@
 	}
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(299)();
+	exports = module.exports = __webpack_require__(300)();
 	// imports
 
 
@@ -31597,89 +31681,6 @@
 
 	// exports
 
-
-/***/ },
-/* 303 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _searchbar = __webpack_require__(295);
-
-	var _searchbar2 = _interopRequireDefault(_searchbar);
-
-	var _store = __webpack_require__(264);
-
-	var _store2 = _interopRequireDefault(_store);
-
-	var _redux = __webpack_require__(179);
-
-	var _profile = __webpack_require__(290);
-
-	var actionCreators = _interopRequireWildcard(_profile);
-
-	var _reactRedux = __webpack_require__(172);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var SearchBox = function (_React$Component) {
-		_inherits(SearchBox, _React$Component);
-
-		function SearchBox() {
-			_classCallCheck(this, SearchBox);
-
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(SearchBox).apply(this, arguments));
-		}
-
-		_createClass(SearchBox, [{
-			key: 'componentWillMount',
-			value: function componentWillMount() {}
-		}, {
-			key: 'render',
-			value: function render() {
-
-				return _react2.default.createElement(
-					'div',
-					null,
-					_react2.default.createElement(
-						'ul',
-						null,
-						this.props.filteredUsers.map(function (obj) {
-							return _react2.default.createElement(
-								'li',
-								{ key: obj.id },
-								obj.username
-							);
-						})
-					)
-				);
-			}
-		}]);
-
-		return SearchBox;
-	}(_react2.default.Component);
-
-	;
-
-	exports.default = SearchBox;
 
 /***/ }
 /******/ ]);
