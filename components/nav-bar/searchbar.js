@@ -17,8 +17,9 @@ class SearchBar extends React.Component {
 	render() {
 
 
-			return(
-				<input onChange={(e) => this.searchFriends(e)}/>)
+			return(<div>
+				<input onChange={(e) => this.searchFriends(e)}/>
+				</div>)
 		
 	}
 };

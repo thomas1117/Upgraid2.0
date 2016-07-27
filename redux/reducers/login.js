@@ -26,7 +26,7 @@ export default function(state = userInitialState, action) {
         return {...state,userList:action.payload}
 
       case 'FILTERED_USERS':
-      console.log(action.payload)
+      
         return {...state,filteredUsers:action.payload}
 
         

@@ -23,3 +23,8 @@ li {
   width: 20%;
   height: 100vh;
   background: #f7f7f7; }
+
+.user-list-modal {
+  position: absolute;
+  top: 50px;
+  background-color: red; }
