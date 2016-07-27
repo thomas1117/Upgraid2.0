@@ -16,6 +16,9 @@ nav {
   nav input {
     border-radius: 3px; }
 
+li {
+  list-style: none; }
+
 .nav-left-body {
   width: 20%;
   height: 100vh;

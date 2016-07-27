@@ -29122,7 +29122,7 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+			value: true
 	});
 	exports.doThis = doThis;
 	exports.login = login;
@@ -29131,20 +29131,39 @@
 
 	var _store2 = _interopRequireDefault(_store);
 
+	var _axios = __webpack_require__(268);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _reactRouter = __webpack_require__(201);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function doThis(resp) {
-		_store2.default.dispatch({
-			type: 'SAVE_PROFILE',
-			payload: resp
-		});
+			_store2.default.dispatch({
+					type: 'SAVE_PROFILE',
+					payload: resp
+			});
 	}
 
 	function login(resp) {
-		_store2.default.dispatch({
-			type: 'LOGIN',
-			payload: resp
-		});
+			var username = resp.username;
+
+			_axios2.default.post('https://safe-brook-9891.herokuapp.com/api/api-token-auth/', {
+					username: username,
+					password: resp.password
+			}).then(function (resp) {
+					_axios2.default.defaults.headers.common['Authorization'] = 'Token ' + resp.data.token;
+
+					localStorage.setItem('token', resp.data.token);
+
+					_reactRouter.browserHistory.push('/profile/' + username);
+
+					_store2.default.dispatch({
+							type: 'LOGIN',
+							payload: resp
+					});
+			});
 	}
 
 /***/ },
@@ -29220,53 +29239,55 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	exports.default = function () {
-	    var state = arguments.length <= 0 || arguments[0] === undefined ? userInitialState : arguments[0];
-	    var action = arguments[1];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? userInitialState : arguments[0];
+	  var action = arguments[1];
 
-	    switch (action.type) {
+	  switch (action.type) {
 
-	        case 'LOGIN':
+	    case 'LOGIN':
 
-	            _axios2.default.post('https://safe-brook-9891.herokuapp.com/api/api-token-auth/', {
-	                username: action.payload.username,
-	                password: action.payload.password
-	            }).then(function (resp) {
-	                _axios2.default.defaults.headers.common['Authorization'] = 'Token ' + resp.data.token;
+	      return _extends({}, state);
 
-	                localStorage.setItem('token', resp.data.token);
-	            }).then(function () {
-	                _axios2.default.get('https://safe-brook-9891.herokuapp.com/api/profiles/?username=' + action.payload.username).then(function (resp) {}).then(function () {
-	                    _reactRouter.browserHistory.push('/profile/' + action.payload.username);
-	                });
-	            });
+	    case 'PROFILE':
 
-	        case 'SAVE_PROFILE':
+	      return _extends({}, state, { profile_data: action.payload.data[0] });
 
-	            return _extends({}, state, {
-	                profile_data: action.payload });
+	    case 'GRAB_USERS':
 
-	        default:
-	            return state;
+	      return _extends({}, state, { userList: action.payload });
 
-	    }
+	    case 'FILTERED_USERS':
+	      console.log(action.payload);
+	      return _extends({}, state, { filteredUsers: action.payload });
+
+	    case 'SAVE_PROFILE':
+
+	      return _extends({}, state, {
+	        user_data: action.payload });
+
+	    default:
+	      return state;
+
+	  }
 	};
 
 	var _axios = __webpack_require__(268);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
-	var _reactRouter = __webpack_require__(201);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var userInitialState = {
-	    profile_data: {}
+	  user_data: {},
+	  profile_data: null,
+	  userList: [],
+	  filteredUsers: []
 	};
 
 /***/ },
@@ -30628,11 +30649,17 @@
 
 	var _redux = __webpack_require__(179);
 
+	var _profile = __webpack_require__(303);
+
+	var actionCreators = _interopRequireWildcard(_profile);
+
 	var _reactRedux = __webpack_require__(172);
 
 	var _navLeft = __webpack_require__(300);
 
 	var _navLeft2 = _interopRequireDefault(_navLeft);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30652,14 +30679,27 @@
 		}
 
 		_createClass(ProfilePage, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {
+				(0, _profile.grabProfileData)({ username: this.props.params.username });
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 
-				return _react2.default.createElement(
-					'div',
-					null,
-					_react2.default.createElement(_navLeft2.default, null)
-				);
+				if (this.props.profileData) {
+
+					return _react2.default.createElement(
+						'div',
+						null,
+						_react2.default.createElement(_navLeft2.default, {
+							userList: this.props.userList,
+							groups: this.props.profileData.user.goal_set,
+							friends: this.props.profileData.user.friend_set })
+					);
+				} else {
+					return _react2.default.createElement('div', null);
+				}
 			}
 		}]);
 
@@ -30668,18 +30708,19 @@
 
 	;
 
-	exports.default = ProfilePage;
+	function mapStateToProps(state) {
 
-	// function mapStateToProps(state) {
+		return {
+			profileData: state.login.profile_data,
+			userList: state.login.userList
+		};
+	}
 
-	//   return {profile_data:state.login.profile_data}
-	// }
+	function mapDispatchToProps(dispatch) {
+		return { actions: (0, _redux.bindActionCreators)(actionCreators, dispatch) };
+	}
 
-	// function mapDispatchToProps(dispatch) {
-	//   return { actions: bindActionCreators(actionCreators, dispatch) }
-	// }
-
-	// export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage)
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ProfilePage);
 
 /***/ },
 /* 291 */
@@ -30691,6 +30732,8 @@
 		value: true
 	});
 
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -30699,26 +30742,77 @@
 
 	var _searchbar2 = _interopRequireDefault(_searchbar);
 
+	var _store = __webpack_require__(265);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	var _redux = __webpack_require__(179);
+
+	var _profile = __webpack_require__(303);
+
+	var actionCreators = _interopRequireWildcard(_profile);
+
+	var _reactRedux = __webpack_require__(172);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Nav = _react2.default.createClass({
-		displayName: 'Nav',
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-		render: function render() {
-			return _react2.default.createElement(
-				'nav',
-				null,
-				_react2.default.createElement(
-					'span',
-					null,
-					'UpgrAID'
-				),
-				_react2.default.createElement(_searchbar2.default, null)
-			);
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Nav = function (_React$Component) {
+		_inherits(Nav, _React$Component);
+
+		function Nav() {
+			_classCallCheck(this, Nav);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Nav).apply(this, arguments));
 		}
-	});
 
-	exports.default = Nav;
+		_createClass(Nav, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {
+				(0, _profile.grabUsers)();
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+
+				return _react2.default.createElement(
+					'nav',
+					null,
+					_react2.default.createElement(
+						'span',
+						null,
+						'UpgrAID'
+					),
+					_react2.default.createElement(_searchbar2.default, { userList: this.props.userList })
+				);
+			}
+		}]);
+
+		return Nav;
+	}(_react2.default.Component);
+
+	;
+
+	function mapStateToProps(state) {
+
+		return {
+			profileData: state.login.profile_data,
+			userList: state.login.userList
+		};
+	}
+
+	function mapDispatchToProps(dispatch) {
+		return { actions: (0, _redux.bindActionCreators)(actionCreators, dispatch) };
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Nav);
 
 /***/ },
 /* 292 */
@@ -31131,7 +31225,7 @@
 
 
 	// module
-	exports.push([module.id, "html, body {\n  height: 100%;\n  width: 100%;\n  margin: 0; }\n\n#app {\n  height: 100vh; }\n\nbody {\n  font-size: 24px; }\n\nnav {\n  background: #337ab7;\n  width: 100%;\n  padding: 10px 0 10px 0; }\n  nav input {\n    border-radius: 3px; }\n\n.nav-left-body {\n  width: 20%;\n  height: 100vh;\n  background: #f7f7f7; }\n", ""]);
+	exports.push([module.id, "html, body {\n  height: 100%;\n  width: 100%;\n  margin: 0; }\n\n#app {\n  height: 100vh; }\n\nbody {\n  font-size: 24px; }\n\nnav {\n  background: #337ab7;\n  width: 100%;\n  padding: 10px 0 10px 0; }\n  nav input {\n    border-radius: 3px; }\n\nli {\n  list-style: none; }\n\n.nav-left-body {\n  width: 20%;\n  height: 100vh;\n  background: #f7f7f7; }\n", ""]);
 
 	// exports
 
@@ -31152,6 +31246,8 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _profile = __webpack_require__(303);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31170,9 +31266,26 @@
 		}
 
 		_createClass(SearchBar, [{
+			key: 'searchFriends',
+			value: function searchFriends(e) {
+				var userInput = e.target.value.toLowerCase();
+
+				var filtered = this.props.userList.filter(function (obj) {
+					if (obj.username.slice(0, userInput.length).toLowerCase() === userInput) {
+						return true;
+					}
+				});
+
+				(0, _profile.filterUsers)(filtered);
+			}
+		}, {
 			key: 'render',
 			value: function render() {
-				return _react2.default.createElement('input', null);
+				var _this2 = this;
+
+				return _react2.default.createElement('input', { onChange: function onChange(e) {
+						return _this2.searchFriends(e);
+					} });
 			}
 		}]);
 
@@ -31199,6 +31312,14 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _groups = __webpack_require__(301);
+
+	var _groups2 = _interopRequireDefault(_groups);
+
+	var _friends = __webpack_require__(304);
+
+	var _friends2 = _interopRequireDefault(_friends);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31219,7 +31340,12 @@
 		_createClass(NavLeft, [{
 			key: 'render',
 			value: function render() {
-				return _react2.default.createElement('div', { className: 'nav-left-body' });
+				return _react2.default.createElement(
+					'div',
+					{ className: 'nav-left-body' },
+					_react2.default.createElement(_groups2.default, { groups: this.props.groups }),
+					_react2.default.createElement(_friends2.default, { friends: this.props.friends })
+				);
 			}
 		}]);
 
@@ -31229,6 +31355,220 @@
 	;
 
 	exports.default = NavLeft;
+
+/***/ },
+/* 301 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	//renders buttons which are links to groups based on how many goals they have.
+	var Groups = function (_React$Component) {
+		_inherits(Groups, _React$Component);
+
+		function Groups() {
+			_classCallCheck(this, Groups);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Groups).apply(this, arguments));
+		}
+
+		_createClass(Groups, [{
+			key: 'groupLi',
+			value: function groupLi() {
+				return this.props.groups.map(function (obj, i) {
+					return _react2.default.createElement(
+						'li',
+						{ key: i },
+						obj.title
+					);
+				});
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+
+				return _react2.default.createElement(
+					'div',
+					null,
+					_react2.default.createElement(
+						'h2',
+						null,
+						'My Groups'
+					),
+					_react2.default.createElement(
+						'ul',
+						null,
+						this.groupLi()
+					)
+				);
+			}
+		}]);
+
+		return Groups;
+	}(_react2.default.Component);
+
+	;
+
+	module.exports = Groups;
+
+	// var props = this.props;
+	// 		var test=this.props.goals.map(function(obj){
+
+	// 					return(<p key={obj.id} className="groupButton"><GroupsBtn theme={obj.theme} id={obj.group} title = {obj.title} completed={obj.completed}/></p>)
+
+	// 			});
+	// 					return(<div id="groupsContainer"><h2 id="groupsHeader">My Groups</h2>{test}</div>)
+	// 			}
+
+/***/ },
+/* 302 */,
+/* 303 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	exports.grabProfileData = grabProfileData;
+	exports.grabUsers = grabUsers;
+	exports.filterUsers = filterUsers;
+
+	var _store = __webpack_require__(265);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	var _axios = __webpack_require__(268);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function grabProfileData(resp) {
+		var username = resp.username;
+
+		_axios2.default.get('https://safe-brook-9891.herokuapp.com/api/profiles/?username=' + username).then(function (resp) {
+
+			_store2.default.dispatch({
+				type: 'PROFILE',
+				payload: resp
+			});
+		});
+	}
+
+	function grabUsers() {
+		_axios2.default.get('https://safe-brook-9891.herokuapp.com/api/users/').then(function (resp) {
+
+			var users = resp.data.map(function (obj) {
+				return {
+					id: obj.id,
+					username: obj.username
+				};
+			});
+
+			_store2.default.dispatch({
+				type: 'GRAB_USERS',
+				payload: users
+			});
+		});
+	}
+
+	function filterUsers(resp) {
+
+		_store2.default.dispatch({
+			type: 'FILTERED_USERS',
+			payload: resp
+		});
+	}
+
+/***/ },
+/* 304 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	//renders buttons which are links to groups based on how many goals they have.
+	var Friends = function (_React$Component) {
+		_inherits(Friends, _React$Component);
+
+		function Friends() {
+			_classCallCheck(this, Friends);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(Friends).apply(this, arguments));
+		}
+
+		_createClass(Friends, [{
+			key: 'friendsLi',
+			value: function friendsLi() {
+
+				return this.props.friends.filter(function (obj, i) {
+
+					if (obj.accepted === true) {
+						return obj;
+					}
+				}).map(function (obj, i) {
+					return _react2.default.createElement(
+						'li',
+						{ key: i },
+						obj.to_friend.username
+					);
+				});
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+
+				return _react2.default.createElement(
+					'div',
+					null,
+					_react2.default.createElement(
+						'h2',
+						null,
+						'Friends'
+					),
+					_react2.default.createElement(
+						'ul',
+						null,
+						this.friendsLi()
+					)
+				);
+			}
+		}]);
+
+		return Friends;
+	}(_react2.default.Component);
+
+	;
+
+	module.exports = Friends;
 
 /***/ }
 /******/ ]);

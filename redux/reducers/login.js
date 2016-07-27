@@ -1,10 +1,13 @@
 "use strict";
 
 import axios from 'axios';
-import {browserHistory} from 'react-router';
+
 
 var userInitialState = {
-	profile_data:{}
+	user_data:{},
+	profile_data:null,
+  userList:[],
+  filteredUsers:[],
 };
 
 export default function(state = userInitialState, action) {
@@ -12,27 +15,26 @@ export default function(state = userInitialState, action) {
 
     	case 'LOGIN': 
 
-    		axios.post('https://safe-brook-9891.herokuapp.com/api/api-token-auth/',{
-	  		username:action.payload.username,
-	  		password:action.payload.password
-	  	}).then(function(resp){
-	  		axios.defaults.headers.common['Authorization'] = 'Token ' + resp.data.token;
-	  		
-	  		localStorage.setItem('token',resp.data.token);
+    		return {...state}
 
-	  	}).then(function(){
-	  		axios.get('https://safe-brook-9891.herokuapp.com/api/profiles/?username='+action.payload.username).then(function(resp){
+	  	case 'PROFILE':
 
-	  		}).then(function(){
-	  			browserHistory.push('/profile/' + action.payload.username);
-	  		})
-	  	});
+	  		return {...state,profile_data:action.payload.data[0]}
+
+      case 'GRAB_USERS':
         
-        case 'SAVE_PROFILE':
+        return {...state,userList:action.payload}
+
+      case 'FILTERED_USERS':
+      console.log(action.payload)
+        return {...state,filteredUsers:action.payload}
+
+        
+      case 'SAVE_PROFILE':
 
            return {
            	...state,
-           	profile_data:action.payload} 
+           	user_data:action.payload} 
            
               
         default:
