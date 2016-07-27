@@ -11,6 +11,7 @@ import Profile from './components/profile-page/profile-page.js';
 import Nav from './components/nav-bar/nav-body.js';
 import store from './redux/store.js';
 import Main from './components/main.js';
+import ProfileUser from './components/profile-user/profile-user.js'
 
 ReactDOM.render(
 	<Provider store={store}>
@@ -18,8 +19,10 @@ ReactDOM.render(
 
 				<Route path="/" component={Main}>
 				<IndexRoute component={Login}/>
-	            	<Route path='/profile/:username' component={Profile}/>          		
+	            	<Route path='profile/:username' component={Profile}/>                   		
 	        	</Route>
+	        	<Route path='users/:id' component={ProfileUser}></Route>
+
 	        	
 				
 		</Router>

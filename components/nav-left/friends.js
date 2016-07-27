@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 
 //renders buttons which are links to groups based on how many goals they have.
 class Friends extends React.Component {
@@ -11,7 +12,7 @@ class Friends extends React.Component {
 			}
 			
 		}).map(function(obj,i){
-			return <li key={i}>{obj.to_friend.username}</li>
+			return <li key={i}><Link to={`/users/${obj.id}`}>{obj.to_friend.username}</Link></li>
 		});	
 	}
 	render(){
