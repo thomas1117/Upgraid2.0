@@ -7,12 +7,12 @@ import thunk from 'redux-thunk';
 var createStoreWithMiddleware = applyMiddleware(thunk)(createStore)
 
 // App Reducers
-import reduce from './reducers/reduce.js';
+import login from './reducers/login.js';
 
 
 // Combine Reducers
 var reducers = combineReducers({
-    reduce:reduce
+    login:login
 });
 
 // Create Store
