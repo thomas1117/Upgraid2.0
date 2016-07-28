@@ -39,8 +39,7 @@ class GoalList extends React.Component {
 		}).map(function(obj){
 				return (<li key={obj.id}>
 				<span>{obj.title}</span>
-				<button className='btn btn-primary pull-right' 
-				onClick={()=> completeGoal(obj)}>x</button>
+				{!that.props.user ?<button className='btn btn-primary pull-right' onClick={()=> completeGoal(obj)}>x</button>:null}
 				</li>)
 		})
 	}

@@ -30963,10 +30963,14 @@
 				return _react2.default.createElement(
 					'div',
 					null,
-					_react2.default.createElement(
+					!this.props.user ? _react2.default.createElement(
 						'h2',
 						null,
 						'My Groups'
+					) : _react2.default.createElement(
+						'h2',
+						null,
+						'Profile Groups'
 					),
 					_react2.default.createElement(
 						'ul',
@@ -31158,14 +31162,13 @@
 							null,
 							obj.title
 						),
-						_react2.default.createElement(
+						!that.props.user ? _react2.default.createElement(
 							'button',
-							{ className: 'btn btn-primary pull-right',
-								onClick: function onClick() {
+							{ className: 'btn btn-primary pull-right', onClick: function onClick() {
 									return (0, _profile.completeGoal)(obj);
 								} },
 							'x'
-						)
+						) : null
 					);
 				});
 			}
@@ -31586,6 +31589,10 @@
 
 	var _goals2 = _interopRequireDefault(_goals);
 
+	var _groups = __webpack_require__(292);
+
+	var _groups2 = _interopRequireDefault(_groups);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -31617,7 +31624,8 @@
 				return _react2.default.createElement(
 					'div',
 					null,
-					_react2.default.createElement(_goals2.default, { user: true, goals: this.props.goals })
+					_react2.default.createElement(_goals2.default, { user: true, goals: this.props.goals }),
+					_react2.default.createElement(_groups2.default, { user: true, groups: this.props.goals })
 				);
 			}
 		}]);

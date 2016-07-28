@@ -5,6 +5,7 @@ import * as actionCreators from '../../redux/actions/profile.js';
 import {connect} from 'react-redux';
 import {getUserProfile} from '../../redux/actions/profile.js';
 import GoalList from '../goal-list/goals.js';
+import Groups from '../nav-left/groups.js';
 
 class ProfileUser extends React.Component {
 	componentWillMount() {
@@ -15,6 +16,7 @@ class ProfileUser extends React.Component {
 		return(
 			<div>
 				<GoalList user={true} goals={this.props.goals}/>
+				<Groups user={true} groups={this.props.goals}/>
 			</div>)
 	}
 };

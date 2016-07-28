@@ -24,6 +24,7 @@ class ProfilePage extends React.Component {
 				groups={this.props.goals} 
 				friends={this.props.profileData.user.friend_set}/>
 				<GoalList goals={this.props.goals} />
+				
 				</div>)
 		}
 

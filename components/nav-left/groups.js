@@ -18,7 +18,7 @@ class Groups extends React.Component {
 
 		return(
 			<div>
-			<h2>My Groups</h2>
+			{!this.props.user ? <h2>My Groups</h2> : <h2>Profile Groups</h2> }
 
 			<ul>
 				{this.groupLi()}
