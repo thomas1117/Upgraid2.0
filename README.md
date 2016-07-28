@@ -26,6 +26,8 @@ sass
 react router
 ```https://medium.com/@dabit3/beginner-s-guide-to-react-router-53094349669#.i421ex2gf```
 
+https://hashnode.com/post/react-router-link-to-does-not-load-new-data-when-called-from-inside-the-same-component-cipjsu9yo00lnnq53zawq2vkw
+
 in your style file run 
 sass --watch sass:css
 

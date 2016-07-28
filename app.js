@@ -19,9 +19,10 @@ ReactDOM.render(
 
 				<Route path="/" component={Main}>
 				<IndexRoute component={Login}/>
-	            	<Route path='profile/:username' component={Profile}/>                   		
+	            	<Route path='/profile/:username' component={Profile}/>                   		
+	        	
+	        	<Route path='/users/:id' component={ProfileUser}></Route>
 	        	</Route>
-	        	<Route path='users/:id' component={ProfileUser}></Route>
 
 	        	
 				

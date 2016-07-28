@@ -104,9 +104,9 @@
 				_reactRouter.Route,
 				{ path: "/", component: _main2.default },
 				_react2.default.createElement(_reactRouter.IndexRoute, { component: _login2.default }),
-				_react2.default.createElement(_reactRouter.Route, { path: "profile/:username", component: _profilePage2.default })
-			),
-			_react2.default.createElement(_reactRouter.Route, { path: "users/:id", component: _profileUser2.default })
+				_react2.default.createElement(_reactRouter.Route, { path: "/profile/:username", component: _profilePage2.default }),
+				_react2.default.createElement(_reactRouter.Route, { path: "/users/:id", component: _profileUser2.default })
+			)
 		)
 	), document.getElementById('app'));
 
@@ -29262,10 +29262,61 @@
 
 	    case 'PROFILE':
 
-	      return _extends({}, state, { profile_data: action.payload.data[0], goals: action.payload.data[0].user.goal_set });
+	      var toFriend = action.payload.data[0].user.to_friend_set.filter(function (obj) {
+
+	        if (obj.accepted === true) {
+	          return obj;
+	        }
+	      }).map(function (obj) {
+	        return {
+	          id: obj.from_friend.id,
+	          username: obj.from_friend.username
+	        };
+	      });
+	      var fromFriend = action.payload.data[0].user.friend_set.filter(function (obj) {
+
+	        if (obj.accepted === true) {
+	          return obj;
+	        }
+	      }).map(function (obj) {
+	        return {
+	          id: obj.to_friend.id,
+	          username: obj.to_friend.username
+	        };
+	      });
+
+	      var friends = toFriend.concat(fromFriend);
+
+	      return _extends({}, state, { profile_data: action.payload.data[0], goals: action.payload.data[0].user.goal_set, userFriends: friends });
 
 	    case 'PROFILE_USER':
-	      return _extends({}, state, { userGoals: action.payload.data[0].user.goal_set });
+	      var toFriend = action.payload.data[0].user.to_friend_set.filter(function (obj) {
+
+	        if (obj.accepted === true) {
+	          return obj;
+	        }
+	      }).map(function (obj) {
+	        return {
+	          id: obj.from_friend.id,
+	          username: obj.from_friend.username
+	        };
+	      });
+	      var fromFriend = action.payload.data[0].user.friend_set.filter(function (obj) {
+
+	        if (obj.accepted === true) {
+	          return obj;
+	        }
+	      }).map(function (obj) {
+	        return {
+	          id: obj.to_friend.id,
+	          username: obj.to_friend.username
+	        };
+	      });
+
+	      var friends = toFriend.concat(fromFriend);
+
+	      console.log(friends);
+	      return _extends({}, state, { userGoals: action.payload.data[0].user.goal_set, userFriends: friends });
 
 	    case 'GRAB_USERS':
 
@@ -29314,6 +29365,7 @@
 	  profile_data: null,
 	  goals: [],
 	  userGoals: [],
+	  userFriends: [],
 	  userList: [],
 	  filteredUsers: []
 	};
@@ -30727,7 +30779,7 @@
 						_react2.default.createElement(_navLeft2.default, {
 							userList: this.props.userList,
 							groups: this.props.goals,
-							friends: this.props.profileData.user.friend_set }),
+							friends: this.props.friends }),
 						_react2.default.createElement(_goals2.default, { goals: this.props.goals })
 					);
 				} else {
@@ -30745,6 +30797,7 @@
 
 		return {
 			profileData: state.login.profile_data,
+			friends: state.login.userFriends,
 			goals: state.login.goals,
 			userList: state.login.userList
 		};
@@ -31033,19 +31086,14 @@
 			key: 'friendsLi',
 			value: function friendsLi() {
 
-				return this.props.friends.filter(function (obj, i) {
-
-					if (obj.accepted === true) {
-						return obj;
-					}
-				}).map(function (obj, i) {
+				return this.props.friends.map(function (obj, i) {
 					return _react2.default.createElement(
 						'li',
 						{ key: i },
 						_react2.default.createElement(
 							_reactRouter.Link,
 							{ to: '/users/' + obj.id },
-							obj.to_friend.username
+							obj.username
 						)
 					);
 				});
@@ -31478,6 +31526,8 @@
 
 	var _reactRedux = __webpack_require__(172);
 
+	var _reactRouter = __webpack_require__(201);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -31514,7 +31564,11 @@
 							return _react2.default.createElement(
 								'li',
 								{ key: obj.id },
-								obj.username
+								_react2.default.createElement(
+									_reactRouter.Link,
+									{ to: '/users/' + obj.id },
+									obj.username
+								)
 							);
 						})
 					)
@@ -31593,6 +31647,10 @@
 
 	var _groups2 = _interopRequireDefault(_groups);
 
+	var _friends = __webpack_require__(293);
+
+	var _friends2 = _interopRequireDefault(_friends);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -31606,10 +31664,13 @@
 	var ProfileUser = function (_React$Component) {
 		_inherits(ProfileUser, _React$Component);
 
-		function ProfileUser() {
+		function ProfileUser(props) {
 			_classCallCheck(this, ProfileUser);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ProfileUser).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ProfileUser).call(this, props));
+
+			_this.state = {};
+			return _this;
 		}
 
 		_createClass(ProfileUser, [{
@@ -31625,7 +31686,8 @@
 					'div',
 					null,
 					_react2.default.createElement(_goals2.default, { user: true, goals: this.props.goals }),
-					_react2.default.createElement(_groups2.default, { user: true, groups: this.props.goals })
+					_react2.default.createElement(_groups2.default, { user: true, groups: this.props.goals }),
+					_react2.default.createElement(_friends2.default, { friends: this.props.friends })
 				);
 			}
 		}]);
@@ -31640,7 +31702,8 @@
 		return {
 			profileData: state.login.profile_data,
 			goals: state.login.userGoals,
-			userList: state.login.userList
+			userList: state.login.userList,
+			friends: state.login.userFriends
 		};
 	}
 

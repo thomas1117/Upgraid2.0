@@ -22,9 +22,9 @@ class ProfilePage extends React.Component {
 				<NavLeft 
 				userList={this.props.userList}
 				groups={this.props.goals} 
-				friends={this.props.profileData.user.friend_set}/>
+				friends={this.props.friends}/>
 				<GoalList goals={this.props.goals} />
-				
+
 				</div>)
 		}
 
@@ -43,6 +43,7 @@ function mapStateToProps(state) {
 	
   return {
   	profileData:state.login.profile_data,
+  	friends:state.login.userFriends,
   	goals:state.login.goals,
   	userList:state.login.userList
   }

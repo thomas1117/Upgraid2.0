@@ -8,6 +8,7 @@ var userInitialState = {
 	profile_data:null,
   goals:[],
   userGoals:[],
+  userFriends:[],
   userList:[],
   filteredUsers:[],
 };
@@ -20,11 +21,64 @@ export default function(state = userInitialState, action) {
     		return {...state}
 
 	  	case 'PROFILE':
+
+      var toFriend = action.payload.data[0].user.to_friend_set.filter(function(obj){
         
-	  		return {...state,profile_data:action.payload.data[0],goals:action.payload.data[0].user.goal_set}
+        if(obj.accepted===true){
+          return obj;
+        }
+      }).map(function(obj){
+        return {
+            id:obj.from_friend.id,
+            username:obj.from_friend.username
+          }
+      })
+      var fromFriend =action.payload.data[0].user.friend_set.filter(function(obj){
+        
+        if(obj.accepted===true){
+          return obj;
+        }
+       
+      }).map(function(obj){
+        return {
+            id:obj.to_friend.id,
+            username:obj.to_friend.username
+          }
+      })
+     
+      var friends = toFriend.concat(fromFriend);
+        
+	  		return {...state,profile_data:action.payload.data[0],goals:action.payload.data[0].user.goal_set,userFriends:friends}
 
       case 'PROFILE_USER':
-        return {...state,userGoals:action.payload.data[0].user.goal_set}
+      var toFriend = action.payload.data[0].user.to_friend_set.filter(function(obj){
+        
+        if(obj.accepted===true){
+          return obj;
+        }
+      }).map(function(obj){
+        return {
+            id:obj.from_friend.id,
+            username:obj.from_friend.username
+          }
+      })
+      var fromFriend =action.payload.data[0].user.friend_set.filter(function(obj){
+        
+        if(obj.accepted===true){
+          return obj;
+        }
+       
+      }).map(function(obj){
+        return {
+            id:obj.to_friend.id,
+            username:obj.to_friend.username
+          }
+      })
+     
+      var friends = toFriend.concat(fromFriend);
+
+      console.log(friends)
+        return {...state,userGoals:action.payload.data[0].user.goal_set,userFriends:friends}
 
       case 'GRAB_USERS':
         
