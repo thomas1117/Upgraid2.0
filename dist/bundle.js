@@ -72,7 +72,7 @@
 
 	var _profilePage2 = _interopRequireDefault(_profilePage);
 
-	var _navBody = __webpack_require__(294);
+	var _navBody = __webpack_require__(295);
 
 	var _navBody2 = _interopRequireDefault(_navBody);
 
@@ -80,18 +80,18 @@
 
 	var _store2 = _interopRequireDefault(_store);
 
-	var _main = __webpack_require__(297);
+	var _main = __webpack_require__(298);
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _profileUser = __webpack_require__(298);
+	var _profileUser = __webpack_require__(299);
 
 	var _profileUser2 = _interopRequireDefault(_profileUser);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	__webpack_require__(299);
-	__webpack_require__(303);
+	__webpack_require__(300);
+	__webpack_require__(304);
 
 
 	_reactDom2.default.render(_react2.default.createElement(
@@ -29272,8 +29272,11 @@
 
 	      return _extends({}, state, { filteredUsers: action.payload });
 
+	    case 'ADD_GOAL':
+	      var list = [].concat(_toConsumableArray(state.goals), [action.payload.data]);
+	      return _extends({}, state, { goals: list });
+
 	    case 'UPDATE_GOALS':
-	      console.log('at update', action.payload, action.payload.id);
 
 	      var goalList = state.goals.map(function (obj) {
 	        if (obj.id === action.payload.data.id) {
@@ -29282,7 +29285,6 @@
 	        return obj;
 	      });
 
-	      console.log(goalList);
 	      return _extends({}, state, { goals: goalList });
 
 	    case 'SAVE_PROFILE':
@@ -29301,6 +29303,8 @@
 	var _axios2 = _interopRequireDefault(_axios);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 	var userInitialState = {
 	  user_data: {},
@@ -30679,7 +30683,7 @@
 
 	var _navLeft2 = _interopRequireDefault(_navLeft);
 
-	var _goals = __webpack_require__(305);
+	var _goals = __webpack_require__(294);
 
 	var _goals2 = _interopRequireDefault(_goals);
 
@@ -30760,6 +30764,7 @@
 	exports.grabProfileData = grabProfileData;
 	exports.grabUsers = grabUsers;
 	exports.filterUsers = filterUsers;
+	exports.addGoal = addGoal;
 	exports.completeGoal = completeGoal;
 
 	var _store = __webpack_require__(264);
@@ -30810,6 +30815,16 @@
 			payload: resp
 		});
 	};
+
+	function addGoal(data) {
+
+		_axios2.default.post('https://safe-brook-9891.herokuapp.com/api/goals/', data).then(function (resp) {
+			_store2.default.dispatch({
+				type: 'ADD_GOAL',
+				payload: resp
+			});
+		});
+	}
 
 	function completeGoal(resp) {
 		var data = { id: resp.id, title: resp.title, theme: resp.theme, completed: true };
@@ -31056,11 +31071,188 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _searchbar = __webpack_require__(295);
+	var _axios = __webpack_require__(267);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _profile = __webpack_require__(290);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var GoalList = function (_React$Component) {
+		_inherits(GoalList, _React$Component);
+
+		function GoalList(props) {
+			_classCallCheck(this, GoalList);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GoalList).call(this, props));
+
+			_this.state = {
+				theme: 0,
+				goalInput: ''
+			};
+			return _this;
+		}
+
+		_createClass(GoalList, [{
+			key: 'handleOption',
+			value: function handleOption(num) {
+				this.setState({
+					theme: num
+				});
+			}
+		}, {
+			key: 'handleInput',
+			value: function handleInput(e) {
+				this.setState({
+					goalInput: e.target.value
+				});
+			}
+		}, {
+			key: 'add',
+			value: function add(e) {
+				e.preventDefault();
+				var data = { title: this.state.goalInput, theme: this.state.theme, completed: false };
+				(0, _profile.addGoal)(data);
+			}
+		}, {
+			key: 'goalList',
+			value: function goalList() {
+				var that = this;
+				console.log(this.props.goals);
+				return this.props.goals.filter(function (obj) {
+
+					if (obj.completed === false) {
+						return obj;
+					}
+				}).map(function (obj) {
+					return _react2.default.createElement(
+						'li',
+						{ key: obj.id },
+						_react2.default.createElement(
+							'span',
+							null,
+							obj.title
+						),
+						_react2.default.createElement(
+							'button',
+							{ className: 'btn btn-primary pull-right',
+								onClick: function onClick() {
+									return (0, _profile.completeGoal)(obj);
+								} },
+							'x'
+						)
+					);
+				});
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				var _this2 = this;
+
+				return _react2.default.createElement(
+					'div',
+					{ className: 'col-sm-4' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'h2',
+							null,
+							'Your Goals'
+						)
+					),
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'ul',
+							null,
+							this.goalList()
+						)
+					),
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'form',
+							{ onSubmit: function onSubmit(e) {
+									return _this2.add(e);
+								} },
+							_react2.default.createElement(
+								'div',
+								{ className: 'form-group' },
+								_react2.default.createElement('input', { className: 'form-control', onChange: function onChange(e) {
+										return _this2.handleInput(e);
+									} }),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(1);
+										} }),
+									'Skills'
+								),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(2);
+										} }),
+									'Bad Habits'
+								),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(3);
+										} }),
+									'Health/Fitness'
+								),
+								_react2.default.createElement(
+									'button',
+									{ className: 'btn btn-primary pull-right' },
+									'Submit'
+								)
+							)
+						)
+					)
+				);
+			}
+		}]);
+
+		return GoalList;
+	}(_react2.default.Component);
+
+	exports.default = GoalList;
+
+/***/ },
+/* 295 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _searchbar = __webpack_require__(296);
 
 	var _searchbar2 = _interopRequireDefault(_searchbar);
 
-	var _searchbox = __webpack_require__(296);
+	var _searchbox = __webpack_require__(297);
 
 	var _searchbox2 = _interopRequireDefault(_searchbox);
 
@@ -31197,7 +31389,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Nav);
 
 /***/ },
-/* 295 */
+/* 296 */
 /***/ function(module, exports) {
 
 	// import React from 'react';
@@ -31230,7 +31422,7 @@
 	"use strict";
 
 /***/ },
-/* 296 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31245,7 +31437,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _searchbar = __webpack_require__(295);
+	var _searchbar = __webpack_require__(296);
 
 	var _searchbar2 = _interopRequireDefault(_searchbar);
 
@@ -31313,12 +31505,12 @@
 	exports.default = SearchBox;
 
 /***/ },
-/* 297 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _navBody = __webpack_require__(294);
+	var _navBody = __webpack_require__(295);
 
 	var _navBody2 = _interopRequireDefault(_navBody);
 
@@ -31341,7 +31533,7 @@
 	});
 
 /***/ },
-/* 298 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31395,16 +31587,16 @@
 	exports.default = ProfileUser;
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(300);
+	var content = __webpack_require__(301);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(302)(content, {});
+	var update = __webpack_require__(303)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31421,10 +31613,10 @@
 	}
 
 /***/ },
-/* 300 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(301)();
+	exports = module.exports = __webpack_require__(302)();
 	// imports
 
 
@@ -31435,7 +31627,7 @@
 
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports) {
 
 	/*
@@ -31491,7 +31683,7 @@
 
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -31743,16 +31935,16 @@
 
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(304);
+	var content = __webpack_require__(305);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(302)(content, {});
+	var update = __webpack_require__(303)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31769,10 +31961,10 @@
 	}
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(301)();
+	exports = module.exports = __webpack_require__(302)();
 	// imports
 
 
@@ -31781,185 +31973,6 @@
 
 	// exports
 
-
-/***/ },
-/* 305 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _axios = __webpack_require__(267);
-
-	var _axios2 = _interopRequireDefault(_axios);
-
-	var _profile = __webpack_require__(290);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var GoalList = function (_React$Component) {
-		_inherits(GoalList, _React$Component);
-
-		function GoalList(props) {
-			_classCallCheck(this, GoalList);
-
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GoalList).call(this, props));
-
-			_this.state = {
-				theme: 0,
-				goalInput: ''
-			};
-			return _this;
-		}
-
-		_createClass(GoalList, [{
-			key: 'handleOption',
-			value: function handleOption(num) {
-				this.setState({
-					theme: num
-				});
-			}
-		}, {
-			key: 'handleInput',
-			value: function handleInput(e) {
-				this.setState({
-					goalInput: e.target.value
-				});
-			}
-		}, {
-			key: 'handleSubmit',
-			value: function handleSubmit(e) {
-				e.preventDefault();
-				var data = { title: this.state.goalInput, theme: this.state.theme, completed: false };
-				_axios2.default.post('https://safe-brook-9891.herokuapp.com/api/goals/', data).then(function (resp) {
-					console.log(resp);
-				});
-			}
-		}, {
-			key: 'goalList',
-			value: function goalList() {
-				var that = this;
-				console.log(this.props.goals);
-				return this.props.goals.filter(function (obj) {
-
-					if (obj.completed === false) {
-						return obj;
-					}
-				}).map(function (obj) {
-					return _react2.default.createElement(
-						'li',
-						{ key: obj.id },
-						_react2.default.createElement(
-							'span',
-							null,
-							obj.title
-						),
-						_react2.default.createElement(
-							'button',
-							{ className: 'btn btn-primary pull-right',
-								onClick: function onClick() {
-									return (0, _profile.completeGoal)(obj);
-								} },
-							'x'
-						)
-					);
-				});
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				var _this2 = this;
-
-				return _react2.default.createElement(
-					'div',
-					{ className: 'col-sm-4' },
-					_react2.default.createElement(
-						'div',
-						{ className: 'col-sm-12' },
-						_react2.default.createElement(
-							'h2',
-							null,
-							'Your Goals'
-						)
-					),
-					_react2.default.createElement(
-						'div',
-						{ className: 'col-sm-12' },
-						_react2.default.createElement(
-							'ul',
-							null,
-							this.goalList()
-						)
-					),
-					_react2.default.createElement(
-						'div',
-						{ className: 'col-sm-12' },
-						_react2.default.createElement(
-							'form',
-							{ onSubmit: function onSubmit(e) {
-									return _this2.handleSubmit(e);
-								} },
-							_react2.default.createElement(
-								'div',
-								{ className: 'form-group' },
-								_react2.default.createElement('input', { className: 'form-control', onChange: function onChange(e) {
-										return _this2.handleInput(e);
-									} }),
-								_react2.default.createElement(
-									'label',
-									{ className: 'radio-inline' },
-									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
-											return _this2.handleOption(1);
-										} }),
-									'Skills'
-								),
-								_react2.default.createElement(
-									'label',
-									{ className: 'radio-inline' },
-									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
-											return _this2.handleOption(2);
-										} }),
-									'Bad Habits'
-								),
-								_react2.default.createElement(
-									'label',
-									{ className: 'radio-inline' },
-									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
-											return _this2.handleOption(3);
-										} }),
-									'Health/Fitness'
-								),
-								_react2.default.createElement(
-									'button',
-									{ className: 'btn btn-primary pull-right' },
-									'Submit'
-								)
-							)
-						)
-					)
-				);
-			}
-		}]);
-
-		return GoalList;
-	}(_react2.default.Component);
-
-	exports.default = GoalList;
 
 /***/ }
 /******/ ]);

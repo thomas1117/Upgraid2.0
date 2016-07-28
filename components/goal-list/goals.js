@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {completeGoal} from '../../redux/actions/profile.js';
+import {completeGoal,addGoal} from '../../redux/actions/profile.js';
 
 class GoalList extends React.Component {
 	constructor(props) {
@@ -21,12 +21,11 @@ class GoalList extends React.Component {
 			goalInput:e.target.value
 		})
 	}
-	handleSubmit(e) {
+	add(e) {
 		e.preventDefault();
 		var data = {title:this.state.goalInput,theme:this.state.theme,completed:false};
-		axios.post('https://safe-brook-9891.herokuapp.com/api/goals/',data).then(function(resp){
-			console.log(resp)
-		})
+		addGoal(data)
+		
 	}
 	goalList() {
 		var that = this;
@@ -57,7 +56,7 @@ class GoalList extends React.Component {
 				</ul>
 			</div>
 			<div className='col-sm-12'>
-				<form onSubmit={e=>this.handleSubmit(e)}>
+				<form onSubmit={e=>this.add(e)}>
 					<div className='form-group'>
 						<input className='form-control' onChange={(e)=>this.handleInput(e)}/>
 						<label className="radio-inline"><input type="radio" name="optradio" onClick={()=>this.handleOption(1)}/>Skills</label>

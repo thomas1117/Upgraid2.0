@@ -43,6 +43,17 @@ export function filterUsers(resp) {
 	});
 };
 
+export function addGoal(data) {
+
+	axios.post('https://safe-brook-9891.herokuapp.com/api/goals/',data).then(function(resp){
+		store.dispatch({
+			type:'ADD_GOAL',
+			payload:resp
+		});	
+	});
+
+}
+
 export function completeGoal(resp) {
 	var data = {id:resp.id,title:resp.title,theme:resp.theme,completed:true}
 	axios.put(URL+'goals/' + resp.id,data).then(function(resp){

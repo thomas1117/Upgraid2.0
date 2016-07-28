@@ -30,8 +30,12 @@ export default function(state = userInitialState, action) {
       
         return {...state,filteredUsers:action.payload}
 
+      case 'ADD_GOAL':
+        var list = [...state.goals,action.payload.data]
+        return {...state,goals:list}
+
       case 'UPDATE_GOALS':
-      console.log('at update',action.payload,action.payload.id)
+
 
         var goalList = state.goals.map(obj=>{
           if(obj.id===action.payload.data.id) {
@@ -41,7 +45,6 @@ export default function(state = userInitialState, action) {
 
         });
 
-        console.log(goalList)
         return {...state,goals:goalList}
 
         
