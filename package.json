@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/lvjuniordevs/webpack-skeleton#readme",
   "dependencies": {
+    "angular": "^1.5.8",
     "axios": "^0.13.1",
     "babel-cli": "^6.10.1",
     "connect-history-api-fallback": "^1.2.0",

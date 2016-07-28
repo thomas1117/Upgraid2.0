@@ -3,10 +3,12 @@
 import store from '../store';
 import axios from 'axios';
 
+const URL = "https://safe-brook-9891.herokuapp.com/api/";
+
 export function grabProfileData(resp) {
 	    var username = resp.username;
 	
-		axios.get('https://safe-brook-9891.herokuapp.com/api/profiles/?username='+username).then(function(resp){
+		axios.get(URL+'profiles/?username='+username).then(function(resp){
 			
 			store.dispatch({
 			type: 'PROFILE',
@@ -17,7 +19,7 @@ export function grabProfileData(resp) {
 }
 
 export function grabUsers() {
-	axios.get('https://safe-brook-9891.herokuapp.com/api/users/').then(function(resp){
+	axios.get(URL+'users/').then(function(resp){
 			
 			var users = resp.data.map(function(obj){
 				return {
@@ -39,5 +41,16 @@ export function filterUsers(resp) {
 		type:'FILTERED_USERS',
 		payload:resp
 	});
+};
+
+export function completeGoal(resp) {
+	var data = {id:resp.id,title:resp.title,theme:resp.theme,completed:true}
+	axios.put(URL+'goals/' + resp.id,data).then(function(resp){
+			store.dispatch({
+				type:'UPDATE_GOALS',
+				payload:resp
+			});
+	});
+
 }
 

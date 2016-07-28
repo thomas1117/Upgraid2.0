@@ -84,14 +84,14 @@
 
 	var _main2 = _interopRequireDefault(_main);
 
-	var _profileUser = __webpack_require__(304);
+	var _profileUser = __webpack_require__(298);
 
 	var _profileUser2 = _interopRequireDefault(_profileUser);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	__webpack_require__(298);
-	__webpack_require__(302);
+	__webpack_require__(299);
+	__webpack_require__(303);
 
 
 	_reactDom2.default.render(_react2.default.createElement(
@@ -29143,6 +29143,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var URL = "https://safe-brook-9891.herokuapp.com/api/";
+
 	function doThis(resp) {
 			_store2.default.dispatch({
 					type: 'SAVE_PROFILE',
@@ -29153,7 +29155,7 @@
 	function login(resp) {
 			var username = resp.username;
 
-			_axios2.default.post('https://safe-brook-9891.herokuapp.com/api/api-token-auth/', {
+			_axios2.default.post(URL + 'api-token-auth/', {
 					username: username,
 					password: resp.password
 			}).then(function (resp) {
@@ -29260,7 +29262,7 @@
 
 	    case 'PROFILE':
 
-	      return _extends({}, state, { profile_data: action.payload.data[0] });
+	      return _extends({}, state, { profile_data: action.payload.data[0], goals: action.payload.data[0].user.goal_set });
 
 	    case 'GRAB_USERS':
 
@@ -29269,6 +29271,19 @@
 	    case 'FILTERED_USERS':
 
 	      return _extends({}, state, { filteredUsers: action.payload });
+
+	    case 'UPDATE_GOALS':
+	      console.log('at update', action.payload, action.payload.id);
+
+	      var goalList = state.goals.map(function (obj) {
+	        if (obj.id === action.payload.data.id) {
+	          obj.completed = action.payload.data.completed;
+	        }
+	        return obj;
+	      });
+
+	      console.log(goalList);
+	      return _extends({}, state, { goals: goalList });
 
 	    case 'SAVE_PROFILE':
 
@@ -29290,6 +29305,7 @@
 	var userInitialState = {
 	  user_data: {},
 	  profile_data: null,
+	  goals: [],
 	  userList: [],
 	  filteredUsers: []
 	};
@@ -30663,6 +30679,10 @@
 
 	var _navLeft2 = _interopRequireDefault(_navLeft);
 
+	var _goals = __webpack_require__(305);
+
+	var _goals2 = _interopRequireDefault(_goals);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -30698,8 +30718,9 @@
 						null,
 						_react2.default.createElement(_navLeft2.default, {
 							userList: this.props.userList,
-							groups: this.props.profileData.user.goal_set,
-							friends: this.props.profileData.user.friend_set })
+							groups: this.props.goals,
+							friends: this.props.profileData.user.friend_set }),
+						_react2.default.createElement(_goals2.default, { goals: this.props.goals })
 					);
 				} else {
 					return _react2.default.createElement('div', null);
@@ -30716,6 +30737,7 @@
 
 		return {
 			profileData: state.login.profile_data,
+			goals: state.login.goals,
 			userList: state.login.userList
 		};
 	}
@@ -30738,6 +30760,7 @@
 	exports.grabProfileData = grabProfileData;
 	exports.grabUsers = grabUsers;
 	exports.filterUsers = filterUsers;
+	exports.completeGoal = completeGoal;
 
 	var _store = __webpack_require__(264);
 
@@ -30749,10 +30772,12 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var URL = "https://safe-brook-9891.herokuapp.com/api/";
+
 	function grabProfileData(resp) {
 		var username = resp.username;
 
-		_axios2.default.get('https://safe-brook-9891.herokuapp.com/api/profiles/?username=' + username).then(function (resp) {
+		_axios2.default.get(URL + 'profiles/?username=' + username).then(function (resp) {
 
 			_store2.default.dispatch({
 				type: 'PROFILE',
@@ -30762,7 +30787,7 @@
 	}
 
 	function grabUsers() {
-		_axios2.default.get('https://safe-brook-9891.herokuapp.com/api/users/').then(function (resp) {
+		_axios2.default.get(URL + 'users/').then(function (resp) {
 
 			var users = resp.data.map(function (obj) {
 				return {
@@ -30783,6 +30808,16 @@
 		_store2.default.dispatch({
 			type: 'FILTERED_USERS',
 			payload: resp
+		});
+	};
+
+	function completeGoal(resp) {
+		var data = { id: resp.id, title: resp.title, theme: resp.theme, completed: true };
+		_axios2.default.put(URL + 'goals/' + resp.id, data).then(function (resp) {
+			_store2.default.dispatch({
+				type: 'UPDATE_GOALS',
+				payload: resp
+			});
 		});
 	}
 
@@ -31309,13 +31344,67 @@
 /* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ProfileUser = function (_React$Component) {
+		_inherits(ProfileUser, _React$Component);
+
+		function ProfileUser() {
+			_classCallCheck(this, ProfileUser);
+
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(ProfileUser).apply(this, arguments));
+		}
+
+		_createClass(ProfileUser, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'p',
+					null,
+					'profile user'
+				);
+			}
+		}]);
+
+		return ProfileUser;
+	}(_react2.default.Component);
+
+	;
+
+	exports.default = ProfileUser;
+
+/***/ },
+/* 299 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(299);
+	var content = __webpack_require__(300);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(301)(content, {});
+	var update = __webpack_require__(302)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31332,10 +31421,10 @@
 	}
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(300)();
+	exports = module.exports = __webpack_require__(301)();
 	// imports
 
 
@@ -31346,7 +31435,7 @@
 
 
 /***/ },
-/* 300 */
+/* 301 */
 /***/ function(module, exports) {
 
 	/*
@@ -31402,7 +31491,7 @@
 
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -31654,16 +31743,16 @@
 
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(303);
+	var content = __webpack_require__(304);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(301)(content, {});
+	var update = __webpack_require__(302)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -31680,21 +31769,21 @@
 	}
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(300)();
+	exports = module.exports = __webpack_require__(301)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "html, body {\n  height: 100%;\n  width: 100%;\n  margin: 0; }\n\n#app {\n  height: 100vh; }\n\nbody {\n  font-size: 24px; }\n\nnav {\n  background: #337ab7;\n  width: 100%;\n  padding: 10px 0 10px 0; }\n  nav input {\n    border-radius: 3px; }\n\nli {\n  list-style: none; }\n\n.nav-left-body {\n  width: 20%;\n  height: 100vh;\n  background: #f7f7f7; }\n\n.user-list-modal {\n  position: absolute;\n  top: 50px;\n  background-color: red; }\n", ""]);
+	exports.push([module.id, "html, body {\n  height: 100%;\n  width: 100%;\n  margin: 0; }\n\n#app {\n  height: 100vh; }\n\nbody {\n  font-size: 24px; }\n\nnav {\n  background: #337ab7;\n  width: 100%;\n  padding: 10px 0 10px 0; }\n  nav input {\n    border-radius: 3px; }\n\nul {\n  padding: 0;\n  margin: 0; }\n\nli {\n  list-style: none; }\n\ninput[type=radio] {\n  top: 9px; }\n\n.nav-left-body {\n  width: 20%;\n  height: 100vh;\n  background: #f7f7f7; }\n\n.user-list-modal {\n  position: absolute;\n  top: 50px;\n  background-color: red; }\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31709,6 +31798,12 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _axios = __webpack_require__(267);
+
+	var _axios2 = _interopRequireDefault(_axios);
+
+	var _profile = __webpack_require__(290);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31717,32 +31812,154 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ProfileUser = function (_React$Component) {
-		_inherits(ProfileUser, _React$Component);
+	var GoalList = function (_React$Component) {
+		_inherits(GoalList, _React$Component);
 
-		function ProfileUser() {
-			_classCallCheck(this, ProfileUser);
+		function GoalList(props) {
+			_classCallCheck(this, GoalList);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ProfileUser).apply(this, arguments));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GoalList).call(this, props));
+
+			_this.state = {
+				theme: 0,
+				goalInput: ''
+			};
+			return _this;
 		}
 
-		_createClass(ProfileUser, [{
+		_createClass(GoalList, [{
+			key: 'handleOption',
+			value: function handleOption(num) {
+				this.setState({
+					theme: num
+				});
+			}
+		}, {
+			key: 'handleInput',
+			value: function handleInput(e) {
+				this.setState({
+					goalInput: e.target.value
+				});
+			}
+		}, {
+			key: 'handleSubmit',
+			value: function handleSubmit(e) {
+				e.preventDefault();
+				var data = { title: this.state.goalInput, theme: this.state.theme, completed: false };
+				_axios2.default.post('https://safe-brook-9891.herokuapp.com/api/goals/', data).then(function (resp) {
+					console.log(resp);
+				});
+			}
+		}, {
+			key: 'goalList',
+			value: function goalList() {
+				var that = this;
+				console.log(this.props.goals);
+				return this.props.goals.filter(function (obj) {
+
+					if (obj.completed === false) {
+						return obj;
+					}
+				}).map(function (obj) {
+					return _react2.default.createElement(
+						'li',
+						{ key: obj.id },
+						_react2.default.createElement(
+							'span',
+							null,
+							obj.title
+						),
+						_react2.default.createElement(
+							'button',
+							{ className: 'btn btn-primary pull-right',
+								onClick: function onClick() {
+									return (0, _profile.completeGoal)(obj);
+								} },
+							'x'
+						)
+					);
+				});
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+				var _this2 = this;
+
 				return _react2.default.createElement(
-					'p',
-					null,
-					'profile user'
+					'div',
+					{ className: 'col-sm-4' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'h2',
+							null,
+							'Your Goals'
+						)
+					),
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'ul',
+							null,
+							this.goalList()
+						)
+					),
+					_react2.default.createElement(
+						'div',
+						{ className: 'col-sm-12' },
+						_react2.default.createElement(
+							'form',
+							{ onSubmit: function onSubmit(e) {
+									return _this2.handleSubmit(e);
+								} },
+							_react2.default.createElement(
+								'div',
+								{ className: 'form-group' },
+								_react2.default.createElement('input', { className: 'form-control', onChange: function onChange(e) {
+										return _this2.handleInput(e);
+									} }),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(1);
+										} }),
+									'Skills'
+								),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(2);
+										} }),
+									'Bad Habits'
+								),
+								_react2.default.createElement(
+									'label',
+									{ className: 'radio-inline' },
+									_react2.default.createElement('input', { type: 'radio', name: 'optradio', onClick: function onClick() {
+											return _this2.handleOption(3);
+										} }),
+									'Health/Fitness'
+								),
+								_react2.default.createElement(
+									'button',
+									{ className: 'btn btn-primary pull-right' },
+									'Submit'
+								)
+							)
+						)
+					)
 				);
 			}
 		}]);
 
-		return ProfileUser;
+		return GoalList;
 	}(_react2.default.Component);
 
-	;
-
-	exports.default = ProfileUser;
+	exports.default = GoalList;
 
 /***/ }
 /******/ ]);

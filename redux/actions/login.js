@@ -3,6 +3,7 @@
 import store from '../store';
 import axios from 'axios';
 import {browserHistory} from 'react-router';
+const URL = "https://safe-brook-9891.herokuapp.com/api/";
 
 export function doThis(resp) {
 		store.dispatch({
@@ -14,7 +15,7 @@ export function doThis(resp) {
 export function login(resp) {
 		var username = resp.username;
 
-		axios.post('https://safe-brook-9891.herokuapp.com/api/api-token-auth/',{
+		axios.post(URL+'api-token-auth/',{
 	  		username:username,
 	  		password:resp.password
 	  	}).then(function(resp){

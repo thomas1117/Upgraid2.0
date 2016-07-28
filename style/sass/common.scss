@@ -17,8 +17,17 @@ nav {
 	}
 }
 
+ul {
+	padding:0;
+	margin:0;
+}
+
 li {
 	list-style: none;
+}
+
+input[type=radio] {
+	top:9px;
 }
 .nav-left-body {
 	width:20%;

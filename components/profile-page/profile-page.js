@@ -5,6 +5,7 @@ import * as actionCreators from '../../redux/actions/profile.js';
 import {grabProfileData} from '../../redux/actions/profile.js';
 import {connect} from 'react-redux';
 import NavLeft from '../nav-left/navLeft.js';
+import GoalList from '../goal-list/goals.js';
 
 class ProfilePage extends React.Component {
 
@@ -20,8 +21,9 @@ class ProfilePage extends React.Component {
 			return(<div>
 				<NavLeft 
 				userList={this.props.userList}
-				groups={this.props.profileData.user.goal_set} 
+				groups={this.props.goals} 
 				friends={this.props.profileData.user.friend_set}/>
+				<GoalList goals={this.props.goals} />
 				</div>)
 		}
 
@@ -40,6 +42,7 @@ function mapStateToProps(state) {
 	
   return {
   	profileData:state.login.profile_data,
+  	goals:state.login.goals,
   	userList:state.login.userList
   }
 }
