@@ -18,6 +18,15 @@ export function grabProfileData(resp) {
 
 }
 
+export function getUserProfile(id) {
+	axios.get(URL+'profiles/?user='+id).then(function(resp){
+		store.dispatch({
+			type: 'PROFILE_USER',
+			payload: resp
+			});
+	})
+}
+
 export function grabUsers() {
 	axios.get(URL+'users/').then(function(resp){
 			

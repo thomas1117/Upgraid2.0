@@ -29264,6 +29264,9 @@
 
 	      return _extends({}, state, { profile_data: action.payload.data[0], goals: action.payload.data[0].user.goal_set });
 
+	    case 'PROFILE_USER':
+	      return _extends({}, state, { userGoals: action.payload.data[0].user.goal_set });
+
 	    case 'GRAB_USERS':
 
 	      return _extends({}, state, { userList: action.payload });
@@ -29310,6 +29313,7 @@
 	  user_data: {},
 	  profile_data: null,
 	  goals: [],
+	  userGoals: [],
 	  userList: [],
 	  filteredUsers: []
 	};
@@ -30762,6 +30766,7 @@
 		value: true
 	});
 	exports.grabProfileData = grabProfileData;
+	exports.getUserProfile = getUserProfile;
 	exports.grabUsers = grabUsers;
 	exports.filterUsers = filterUsers;
 	exports.addGoal = addGoal;
@@ -30786,6 +30791,15 @@
 
 			_store2.default.dispatch({
 				type: 'PROFILE',
+				payload: resp
+			});
+		});
+	}
+
+	function getUserProfile(id) {
+		_axios2.default.get(URL + 'profiles/?user=' + id).then(function (resp) {
+			_store2.default.dispatch({
+				type: 'PROFILE_USER',
 				payload: resp
 			});
 		});
@@ -30929,7 +30943,12 @@
 		_createClass(Groups, [{
 			key: 'groupLi',
 			value: function groupLi() {
-				return this.props.groups.map(function (obj, i) {
+				return this.props.groups.filter(function (obj) {
+
+					if (obj.completed === false) {
+						return obj;
+					}
+				}).map(function (obj, i) {
 					return _react2.default.createElement(
 						'li',
 						{ key: i },
@@ -31125,7 +31144,6 @@
 			key: 'goalList',
 			value: function goalList() {
 				var that = this;
-				console.log(this.props.goals);
 				return this.props.goals.filter(function (obj) {
 
 					if (obj.completed === false) {
@@ -31162,10 +31180,14 @@
 					_react2.default.createElement(
 						'div',
 						{ className: 'col-sm-12' },
-						_react2.default.createElement(
+						!this.props.user ? _react2.default.createElement(
 							'h2',
 							null,
 							'Your Goals'
+						) : _react2.default.createElement(
+							'h2',
+							null,
+							'Profile Goals'
 						)
 					),
 					_react2.default.createElement(
@@ -31180,7 +31202,7 @@
 					_react2.default.createElement(
 						'div',
 						{ className: 'col-sm-12' },
-						_react2.default.createElement(
+						!this.props.user ? _react2.default.createElement(
 							'form',
 							{ onSubmit: function onSubmit(e) {
 									return _this2.add(e);
@@ -31221,7 +31243,7 @@
 									'Submit'
 								)
 							)
-						)
+						) : null
 					)
 				);
 			}
@@ -31548,6 +31570,24 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _store = __webpack_require__(264);
+
+	var _store2 = _interopRequireDefault(_store);
+
+	var _redux = __webpack_require__(179);
+
+	var _profile = __webpack_require__(290);
+
+	var actionCreators = _interopRequireWildcard(_profile);
+
+	var _reactRedux = __webpack_require__(172);
+
+	var _goals = __webpack_require__(294);
+
+	var _goals2 = _interopRequireDefault(_goals);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31567,14 +31607,17 @@
 
 		_createClass(ProfileUser, [{
 			key: 'componentWillMount',
-			value: function componentWillMount() {}
+			value: function componentWillMount() {
+
+				(0, _profile.getUserProfile)(this.props.params.id);
+			}
 		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
-					'p',
+					'div',
 					null,
-					'profile user'
+					_react2.default.createElement(_goals2.default, { user: true, goals: this.props.goals })
 				);
 			}
 		}]);
@@ -31584,7 +31627,20 @@
 
 	;
 
-	exports.default = ProfileUser;
+	function mapStateToProps(state) {
+
+		return {
+			profileData: state.login.profile_data,
+			goals: state.login.userGoals,
+			userList: state.login.userList
+		};
+	}
+
+	function mapDispatchToProps(dispatch) {
+		return { actions: (0, _redux.bindActionCreators)(actionCreators, dispatch) };
+	}
+
+	exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ProfileUser);
 
 /***/ },
 /* 300 */

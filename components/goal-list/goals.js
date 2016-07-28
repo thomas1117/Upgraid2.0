@@ -29,7 +29,6 @@ class GoalList extends React.Component {
 	}
 	goalList() {
 		var that = this;
-		console.log(this.props.goals)
 		return this.props.goals.filter(function(obj){
 
 				if(obj.completed===false) {
@@ -48,7 +47,7 @@ class GoalList extends React.Component {
 	render() {
 		return(<div className='col-sm-4'>
 			<div className='col-sm-12'>
-				<h2>Your Goals</h2>
+				{!this.props.user ? <h2>Your Goals</h2> : <h2>Profile Goals</h2> }
 			</div>
 			<div className='col-sm-12'>
 				<ul>
@@ -56,6 +55,7 @@ class GoalList extends React.Component {
 				</ul>
 			</div>
 			<div className='col-sm-12'>
+			{!this.props.user ?
 				<form onSubmit={e=>this.add(e)}>
 					<div className='form-group'>
 						<input className='form-control' onChange={(e)=>this.handleInput(e)}/>
@@ -64,7 +64,7 @@ class GoalList extends React.Component {
 						<label className="radio-inline"><input type="radio" name="optradio" onClick={()=>this.handleOption(3)}/>Health/Fitness</label>
 						<button className='btn btn-primary pull-right'>Submit</button>
 					</div>
-				</form>
+				</form>:null}
 			</div>
 		</div>)
 	}

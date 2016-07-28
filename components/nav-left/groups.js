@@ -3,7 +3,14 @@ import React from 'react';
 //renders buttons which are links to groups based on how many goals they have.
 class Groups extends React.Component {
 	groupLi() {
-		return this.props.groups.map(function(obj,i){
+		return this.props.groups.filter(function(obj){
+
+				if(obj.completed===false) {
+					return obj;
+				}
+				
+			
+		}).map(function(obj,i){
 			return <li key={i}>{obj.title}</li>
 		})
 	}

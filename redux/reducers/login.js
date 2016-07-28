@@ -7,6 +7,7 @@ var userInitialState = {
 	user_data:{},
 	profile_data:null,
   goals:[],
+  userGoals:[],
   userList:[],
   filteredUsers:[],
 };
@@ -21,6 +22,9 @@ export default function(state = userInitialState, action) {
 	  	case 'PROFILE':
         
 	  		return {...state,profile_data:action.payload.data[0],goals:action.payload.data[0].user.goal_set}
+
+      case 'PROFILE_USER':
+        return {...state,userGoals:action.payload.data[0].user.goal_set}
 
       case 'GRAB_USERS':
         
